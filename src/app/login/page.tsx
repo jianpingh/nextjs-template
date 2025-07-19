@@ -62,10 +62,11 @@ const LoginPage: React.FC = () => {
                 onChange={handleChange}
                 required
                 disabled={isLoading}
+                className="h-12"
               />
             </div>
             
-            <div className="space-y-2">
+            <div className="space-y-2 mb-6">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
@@ -76,6 +77,7 @@ const LoginPage: React.FC = () => {
                 onChange={handleChange}
                 required
                 disabled={isLoading}
+                className="h-12"
               />
             </div>
 
@@ -87,7 +89,7 @@ const LoginPage: React.FC = () => {
 
             <Button 
               type="submit" 
-              className="w-full" 
+              className="w-full h-12" 
               disabled={isLoading}
             >
               {isLoading ? (
