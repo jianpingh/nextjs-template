@@ -236,6 +236,11 @@ Make sure to configure the correct environment variables, especially `NEXT_PUBLI
    - Check for missing dependencies with `npm install`
    - Verify environment variables are properly set
 
+5. **Docker Build Issues**
+   - Ensure Docker is installed and running
+   - If you get "Cannot find module 'typescript'" error, the Dockerfile has been updated to include dev dependencies
+   - For permission issues, check that Docker has access to the project directory
+
 ## Additional Resources
 
 - 📖 **Deployment Guide**: See `DEPLOYMENT.md` for complete AWS deployment instructions
