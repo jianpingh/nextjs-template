@@ -57,6 +57,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Create ECR repository if it doesn't exist
+        env:
+          ECR_REPOSITORY: nextjs-order-management
+        run: |
+          echo "🏗️ Checking if ECR repository exists..."
+          aws ecr describe-repositories --repository-names $ECR_REPOSITORY --region ${{ secrets.AWS_REGION }} || \
+          aws ecr create-repository --repository-name $ECR_REPOSITORY --region ${{ secrets.AWS_REGION }}
+          echo "✅ ECR repository is ready!"
+
       - name: Build, tag, and push image to Amazon ECR
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
