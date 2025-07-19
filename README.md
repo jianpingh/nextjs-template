@@ -1,177 +1,252 @@
-# 订单管理系统
+# Order Management System
 
-这是一个基于 Next.js 开发的订单管理系统，具有用户认证和订单管理功能。
+A modern order management system built with Next.js, featuring user authentication and comprehensive order management capabilities.
 
-## 功能特性
+## Features
 
-- 🔐 用户登录认证
-- 📦 创建订单
-- 📋 订单列表查看
-- 🔍 订单筛选和搜索
-- 📄 订单分页显示
-- 🎨 响应式设计
+- 🔐 User authentication and login
+- 📦 Create new orders
+- 📋 View order lists
+- 🔍 Filter and search orders
+- 📄 Paginated order display
+- 🎨 Responsive design
 
-## 技术栈
+## Tech Stack
 
-- **前端框架**: Next.js 15 (App Router)
-- **语言**: TypeScript
-- **样式**: Tailwind CSS
-- **HTTP客户端**: Axios
-- **状态管理**: React Context API
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript  
+- **Styling**: Tailwind CSS v4
+- **UI Components**: Shadcn/UI + Radix UI
+- **HTTP Client**: Axios
+- **State Management**: React Context API
+- **Form Handling**: React Hook Form + Zod
+- **Icons**: Lucide React
+- **Authentication**: JWT with automatic token refresh
 
-## 项目结构
+## Project Structure
 
 ```
 src/
-├── app/                    # Next.js App Router 页面
-│   ├── dashboard/         # 仪表板页面
-│   ├── login/            # 登录页面
-│   ├── layout.tsx        # 根布局
-│   ├── page.tsx          # 首页
-│   └── not-found.tsx     # 404页面
-├── components/            # React 组件
-│   ├── CreateOrder.tsx   # 创建订单组件
-│   └── OrderList.tsx     # 订单列表组件
+├── app/                    # Next.js App Router pages
+│   ├── dashboard/         # Dashboard page
+│   ├── login/            # Login page
+│   ├── test/             # Test page
+│   ├── layout.tsx        # Root layout
+│   ├── page.tsx          # Home page
+│   ├── not-found.tsx     # 404 page
+│   ├── globals.css       # Global styles
+│   └── favicon.ico       # Favicon
+├── components/            # React components
+│   ├── ui/               # Shadcn/UI components
+│   │   ├── badge.tsx     # Badge component
+│   │   ├── button.tsx    # Button component
+│   │   ├── card.tsx      # Card component
+│   │   ├── form.tsx      # Form components
+│   │   ├── input.tsx     # Input component
+│   │   ├── label.tsx     # Label component
+│   │   ├── select.tsx    # Select component
+│   │   └── table.tsx     # Table component
+│   ├── CreateOrder.tsx   # Create order component
+│   ├── OrderList.tsx     # Order list component
+│   ├── ErrorBoundary.tsx # Error boundary component
+│   └── LoadingSpinner.tsx # Loading spinner component
 ├── contexts/             # React Context
-│   └── AuthContext.tsx   # 认证上下文
-├── lib/                  # 工具库
-│   └── api.ts            # API配置
-├── services/             # API服务
-│   ├── authService.ts    # 认证服务
-│   └── orderService.ts   # 订单服务
-└── types/                # TypeScript 类型定义
-    ├── auth.ts           # 认证相关类型
-    └── order.ts          # 订单相关类型
+│   └── AuthContext.tsx   # Authentication context
+├── lib/                  # Utility libraries
+│   └── api.ts            # API configuration
+├── services/             # API services
+│   ├── authService.ts    # Authentication service
+│   └── orderService.ts   # Order service
+└── types/                # TypeScript type definitions
+    ├── auth.ts           # Authentication types
+    └── order.ts          # Order types
 ```
 
-## 快速开始
+**Additional Configuration Files:**
+- `components.json` - Shadcn/UI configuration
+- `tailwind.config.js` - Tailwind CSS configuration
+- `next.config.ts` - Next.js configuration
+- `Dockerfile` - Docker configuration
+- `.github/workflows/ci-cd.yml` - CI/CD pipeline
+- `DEPLOYMENT.md` - Deployment guide
 
-### 1. 安装依赖
+## Quick Start
+
+### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 2. 配置环境变量
+### 2. Configure Environment Variables
 
-创建 `.env.local` 文件并配置以下变量：
+Create a `.env.local` file and configure the following variables:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://3.93.213.141:8000
-NEXT_PUBLIC_APP_NAME=订单管理系统
+NEXT_PUBLIC_APP_NAME=Order Management
 ```
 
-### 3. 启动开发服务器
+### 3. Start Development Server
 
 ```bash
 npm run dev
 ```
 
-### 4. 打开浏览器
+### 4. Open Browser
 
-访问 [http://localhost:3000](http://localhost:3000) 查看应用。
+Visit [http://localhost:3000](http://localhost:3000) to view the application.
 
-## API 接口说明
+## API Documentation
 
-本应用连接到后端API服务 `http://3.93.213.141:8000`，使用以下主要接口：
+This application connects to the backend API service at `http://3.93.213.141:8000`, using the following main endpoints:
 
-### 认证接口
-- `POST /token` - 用户登录
-- `GET /users/me` - 获取当前用户信息
+### Authentication Endpoints
+- `POST /auth/login` - User login
+- `GET /users/me` - Get current user information
 
-### 订单接口
-- `POST /orders` - 创建订单
-- `GET /orders` - 获取订单列表（支持分页和筛选）
-- `GET /orders/{id}` - 获取单个订单详情
-- `PATCH /orders/{id}/status` - 更新订单状态
-- `DELETE /orders/{id}` - 删除订单
+### Order Endpoints
+- `POST /orders` - Create new order
+- `GET /orders` - Get order list (supports pagination and filtering)
+- `GET /orders/{id}` - Get single order details
+- `PATCH /orders/{id}/status` - Update order status
+- `DELETE /orders/{id}` - Delete order
 
-## 使用说明
+## Usage Guide
 
-### 1. 登录
-- 在登录页面输入用户名和密码
-- 成功登录后会自动跳转到仪表板
+### 1. Login
+- Enter username and password on the login page
+- After successful login, you'll be automatically redirected to the dashboard
 
-### 2. 创建订单
-- 在仪表板的"创建新订单"区域填写订单信息
-- 包括客户名称、产品名称、数量和单价
-- 系统会自动计算总金额
-- 点击"创建订单"按钮提交
+### 2. Create Orders
+- Fill in order information in the "Create New Order" section on the dashboard
+- Include customer name, product name, quantity, and unit price
+- The system will automatically calculate the total amount
+- Click "Create Order" button to submit
 
-### 3. 查看订单
-- 订单列表显示所有订单信息
-- 支持按客户名称和订单状态筛选
-- 支持分页浏览
-- 可以调整每页显示数量
+### 3. View Orders
+- The order list displays all order information
+- Filter by customer name and order status
+- Browse with pagination support
+- Adjust the number of items displayed per page
 
-### 4. 订单状态
-- **待处理**: 新创建的订单
-- **已确认**: 已确认的订单
-- **已发货**: 已发货的订单
-- **已交付**: 已完成交付的订单
-- **已取消**: 已取消的订单
+### 4. Order Status
+- **Pending**: Newly created orders
+- **Confirmed**: Confirmed orders
+- **Shipped**: Shipped orders
+- **Delivered**: Successfully delivered orders
+- **Cancelled**: Cancelled orders
 
-## 开发相关
+## Development
 
-### 构建项目
+### Build Project
 
 ```bash
 npm run build
 ```
 
-### 代码检查
+### Start Production Server
+
+```bash
+npm run start
+```
+
+### Code Linting
 
 ```bash
 npm run lint
 ```
 
-### 类型检查
+### Type Checking
 
 ```bash
 npm run type-check
 ```
 
-## 部署
+## Deployment
 
-### Vercel 部署
+### Docker Deployment
 
-1. 将代码推送到 GitHub
-2. 在 Vercel 中导入项目
-3. 配置环境变量
-4. 部署
+The project includes Docker support for containerized deployment:
 
-### 其他平台
+```bash
+# Build Docker image
+docker build -t nextjs-order-management .
 
-确保配置正确的环境变量，特别是 `NEXT_PUBLIC_API_BASE_URL`。
+# Run container
+docker run -p 3000:3000 nextjs-order-management
+```
 
-## 注意事项
+### AWS EC2 with CI/CD
 
-1. **跨域问题**: 如果遇到CORS错误，需要后端API配置允许前端域名的跨域请求
-2. **认证令牌**: 登录后的token存储在localStorage中，页面刷新时会自动恢复登录状态
-3. **错误处理**: 应用包含完善的错误处理机制，网络错误和API错误都会有相应提示
+This project includes a complete CI/CD pipeline for AWS deployment:
 
-## 故障排除
+1. **Setup**: Follow the `DEPLOYMENT.md` guide for AWS configuration
+2. **Auto Deploy**: Push to `main` branch for production, `develop` for staging
+3. **Manual Deploy**: Use GitHub Actions workflow dispatch
 
-### 常见问题
+### Vercel Deployment
 
-1. **无法登录**
-   - 检查API服务是否正常运行
-   - 验证用户名和密码是否正确
-   - 查看浏览器控制台的错误信息
+1. Push code to GitHub
+2. Import project in Vercel
+3. Configure environment variables
+4. Deploy
 
-2. **订单列表空白**
-   - 确认已成功登录
-   - 检查API接口是否返回正确数据
-   - 查看网络请求是否成功
+### Other Platforms
 
-3. **样式问题**
-   - 确保Tailwind CSS正确配置
-   - 检查CSS是否正确加载
+Make sure to configure the correct environment variables, especially `NEXT_PUBLIC_API_BASE_URL`.
 
-## 贡献
+## Important Notes
 
-欢迎提交问题和功能请求！
+1. **CORS Issues**: If you encounter CORS errors, the backend API needs to be configured to allow cross-origin requests from the frontend domain
+2. **Authentication Token**: The login token is stored in localStorage and will automatically restore login state on page refresh with automatic token refresh
+3. **Error Handling**: The application includes comprehensive error handling with ErrorBoundary components for both network errors and API errors
+4. **UI Components**: Uses Shadcn/UI for consistent, accessible, and customizable components
+5. **Docker Support**: Includes production-ready Dockerfile with multi-stage builds for optimized container size
 
-## 许可证
+## Project Files
+
+- **`DEPLOYMENT.md`**: Complete deployment guide for AWS EC2 with CI/CD
+- **`TESTING.md`**: Testing documentation and guidelines  
+- **`components.json`**: Shadcn/UI configuration for component generation
+- **`.github/workflows/ci-cd.yml`**: GitHub Actions CI/CD pipeline
+- **`Dockerfile`**: Multi-stage Docker build configuration
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Cannot Login**
+   - Check if the API service is running normally
+   - Verify username and password are correct
+   - Check browser console for error messages
+
+2. **Empty Order List**
+   - Confirm successful login
+   - Check if API endpoints return correct data
+   - Verify network requests are successful
+
+3. **Styling Issues**
+   - Ensure Tailwind CSS v4 is configured correctly
+   - Check if CSS is loading properly
+   - Verify Shadcn/UI components are properly imported
+
+4. **Build Errors**
+   - Run `npm run type-check` to identify TypeScript errors
+   - Check for missing dependencies with `npm install`
+   - Verify environment variables are properly set
+
+## Additional Resources
+
+- 📖 **Deployment Guide**: See `DEPLOYMENT.md` for complete AWS deployment instructions
+- 🧪 **Testing Guide**: See `TESTING.md` for testing setup and guidelines
+- 🎨 **UI Components**: Built with [Shadcn/UI](https://ui.shadcn.com/) for modern, accessible components
+- 🐳 **Docker**: Production-ready containerization with multi-stage builds
+
+## Contributing
+
+Welcome to submit issues and feature requests!
+
+## License
 
 MIT License
