@@ -22,7 +22,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="lg" text="正在加载..." />
+        <LoadingSpinner size="lg" text="Loading..." />
       </div>
     );
   }

@@ -80,12 +80,38 @@ npm install
 
 ### 2. Configure Environment Variables
 
-Create a `.env.local` file and configure the following variables:
+The project supports multiple environment configurations:
 
+#### For Local Development:
+Copy the example file and configure your local settings:
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your local configuration:
 ```env
 NEXT_PUBLIC_API_BASE_URL=http://3.93.213.141:8000
-NEXT_PUBLIC_APP_NAME=Order Management
+NEXT_PUBLIC_APP_NAME=Order Management (Local)
+NODE_ENV=development
+NEXT_PUBLIC_DEBUG=true
+NEXT_PUBLIC_LOG_LEVEL=debug
 ```
+
+#### Environment Files:
+- **`.env.local`** - Local development (overrides all other env files)
+- **`.env.development`** - Development environment settings
+- **`.env.staging`** - Staging environment settings  
+- **`.env.production`** - Production environment settings
+- **`.env.example`** - Template file with all available variables
+
+#### Environment Variables:
+| Variable | Description | Required | Example |
+|----------|-------------|----------|---------|
+| `NEXT_PUBLIC_API_BASE_URL` | Backend API endpoint | Yes | `http://3.93.213.141:8000` |
+| `NEXT_PUBLIC_APP_NAME` | Application display name | Yes | `Order Management System` |
+| `NODE_ENV` | Environment mode | No | `development` / `production` |
+| `NEXT_PUBLIC_DEBUG` | Enable debug mode | No | `true` / `false` |
+| `NEXT_PUBLIC_LOG_LEVEL` | Logging level | No | `debug` / `info` / `warn` / `error` |
 
 ### 3. Start Development Server
 
