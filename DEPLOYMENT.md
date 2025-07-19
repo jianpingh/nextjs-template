@@ -1,219 +1,238 @@
-# 部署指南
+# Deployment Guide
 
-本指南介绍如何将订单管理系统部署到生产环境。
+This guide covers how to deploy the Next.js Order Management System to AWS EC2 using the automated CI/CD pipeline.
 
-## 准备工作
+## Prerequisites
 
-1. **环境变量配置**
-   ```bash
-   # .env.local (本地开发)
-   NEXT_PUBLIC_API_BASE_URL=http://3.93.213.141:8000
-   NEXT_PUBLIC_APP_NAME=订单管理系统
-   
-   # .env.production (生产环境)
-   NEXT_PUBLIC_API_BASE_URL=https://your-api-domain.com
-   NEXT_PUBLIC_APP_NAME=订单管理系统
-   ```
+### 1. AWS Setup
 
-2. **构建项目**
-   ```bash
-   npm run build
-   npm run start
-   ```
+#### ECR Repository
+Create an ECR repository in your AWS account:
+```bash
+aws ecr create-repository --repository-name nextjs-order-management --region us-east-1
+```
 
-## Vercel 部署
+#### EC2 Instances
+Set up EC2 instances for each environment (dev, staging, production):
+- Ubuntu 20.04 LTS or later
+- t3.micro or larger
+- Security group allowing HTTP (80), HTTPS (443), and SSH (22)
+- Docker installed
+- AWS CLI installed
 
-### 方法一：通过 Vercel CLI
+#### Install Docker on EC2:
+```bash
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ubuntu
+```
 
-1. 安装 Vercel CLI
-   ```bash
-   npm install -g vercel
-   ```
+#### Install AWS CLI on EC2:
+```bash
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
 
-2. 登录 Vercel
-   ```bash
-   vercel login
-   ```
+### 2. GitHub Secrets Configuration
 
-3. 部署项目
-   ```bash
-   vercel
-   ```
+Add the following secrets to your GitHub repository:
+- **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
 
-4. 配置环境变量
-   - 在 Vercel 仪表板中设置环境变量
-   - 或通过 CLI：
-   ```bash
-   vercel env add NEXT_PUBLIC_API_BASE_URL
-   vercel env add NEXT_PUBLIC_APP_NAME
-   ```
+#### Required Secrets:
+```
+AWS_ACCESS_KEY_ID         # AWS IAM user access key
+AWS_SECRET_ACCESS_KEY     # AWS IAM user secret key
+AWS_REGION               # AWS region (e.g., us-east-1)
 
-### 方法二：通过 GitHub 集成
+# Development Environment
+DEV_EC2_HOST             # Development EC2 public IP
+DEV_EC2_USER             # EC2 user (usually 'ubuntu')
+DEV_EC2_PRIVATE_KEY      # Private SSH key for dev EC2
 
-1. 将代码推送到 GitHub
-2. 在 Vercel 中导入 GitHub 仓库
-3. 配置环境变量
-4. 部署
+# Staging Environment
+STAGING_EC2_HOST         # Staging EC2 public IP
+STAGING_EC2_USER         # EC2 user (usually 'ubuntu')
+STAGING_EC2_PRIVATE_KEY  # Private SSH key for staging EC2
 
-## Netlify 部署
+# Production Environment
+PROD_EC2_HOST            # Production EC2 public IP
+PROD_EC2_USER            # EC2 user (usually 'ubuntu')
+PROD_EC2_PRIVATE_KEY     # Private SSH key for production EC2
+```
 
-1. 构建配置文件 `netlify.toml`：
-   ```toml
-   [build]
-     command = "npm run build"
-     publish = ".next"
-   
-   [[redirects]]
-     from = "/*"
-     to = "/index.html"
-     status = 200
-   ```
+### 3. IAM Permissions
 
-2. 环境变量配置：
-   - 在 Netlify 仪表板设置环境变量
+Create an IAM user with the following permissions:
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecr:GetAuthorizationToken",
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:GetRepositoryPolicy",
+                "ecr:DescribeRepositories",
+                "ecr:ListImages",
+                "ecr:DescribeImages",
+                "ecr:BatchGetImage",
+                "ecr:InitiateLayerUpload",
+                "ecr:UploadLayerPart",
+                "ecr:CompleteLayerUpload",
+                "ecr:PutImage"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
 
-## Docker 部署
+## Deployment Process
 
-1. 创建 `Dockerfile`：
-   ```dockerfile
-   FROM node:18-alpine AS deps
-   WORKDIR /app
-   COPY package*.json ./
-   RUN npm ci --only=production
-   
-   FROM node:18-alpine AS builder
-   WORKDIR /app
-   COPY . .
-   COPY --from=deps /app/node_modules ./node_modules
-   RUN npm run build
-   
-   FROM node:18-alpine AS runner
-   WORKDIR /app
-   ENV NODE_ENV production
-   
-   RUN addgroup -g 1001 -S nodejs
-   RUN adduser -S nextjs -u 1001
-   
-   COPY --from=builder /app/public ./public
-   COPY --from=builder /app/.next ./.next
-   COPY --from=builder /app/node_modules ./node_modules
-   COPY --from=builder /app/package.json ./package.json
-   
-   USER nextjs
-   EXPOSE 3000
-   ENV PORT 3000
-   
-   CMD ["npm", "start"]
-   ```
+### Automatic Deployment
+The CI/CD pipeline automatically deploys when:
+- **Development**: Push to any branch
+- **Staging**: Push to `develop` branch
+- **Production**: Push to `main` branch
 
-2. 构建和运行：
-   ```bash
-   docker build -t order-management .
-   docker run -p 3000:3000 order-management
-   ```
+### Manual Deployment
+You can also trigger deployment manually:
+1. Go to **Actions** tab in GitHub
+2. Select **CI/CD Pipeline**
+3. Click **Run workflow**
+4. Choose branch and environment
 
-## 传统服务器部署
+## Pipeline Stages
 
-1. 准备服务器（Node.js 18+）
-2. 上传代码并安装依赖：
-   ```bash
-   npm ci --only=production
-   npm run build
-   ```
+### 1. Build & Test
+- Sets up Node.js 20
+- Installs dependencies
+- Runs build process
+- Executes tests (if any)
 
-3. 使用 PM2 进程管理：
-   ```bash
-   npm install -g pm2
-   pm2 start npm --name "order-management" -- start
-   pm2 save
-   pm2 startup
-   ```
+### 2. Docker Build & Push
+- Builds Docker image
+- Tags with commit SHA and environment
+- Pushes to AWS ECR
 
-4. 配置 Nginx 反向代理：
-   ```nginx
-   server {
-       listen 80;
-       server_name your-domain.com;
-       
-       location / {
-           proxy_pass http://localhost:3000;
-           proxy_http_version 1.1;
-           proxy_set_header Upgrade $http_upgrade;
-           proxy_set_header Connection 'upgrade';
-           proxy_set_header Host $host;
-           proxy_set_header X-Real-IP $remote_addr;
-           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-           proxy_set_header X-Forwarded-Proto $scheme;
-           proxy_cache_bypass $http_upgrade;
-       }
-   }
-   ```
+### 3. Deploy to EC2
+- Connects to EC2 via SSH
+- Pulls latest image from ECR
+- Stops old container
+- Starts new container
+- Performs health check
 
-## 环境变量说明
+## Environment Variables
 
-| 变量名 | 描述 | 必需 | 示例 |
-|--------|------|------|------|
-| `NEXT_PUBLIC_API_BASE_URL` | 后端API地址 | 是 | `https://api.example.com` |
-| `NEXT_PUBLIC_APP_NAME` | 应用名称 | 否 | `订单管理系统` |
+### Application Environment Variables
+Create `.env.local` files for each environment on EC2:
 
-## 性能优化
+```bash
+# /home/ubuntu/.env.production
+NEXT_PUBLIC_API_BASE_URL=http://3.93.213.141:8000
+NODE_ENV=production
+```
 
-1. **启用压缩**
-   ```javascript
-   // next.config.js
-   /** @type {import('next').NextConfig} */
-   const nextConfig = {
-     compress: true,
-     // 其他配置...
-   }
-   ```
+### Docker Run Command
+The pipeline uses this command to run the container:
+```bash
+docker run -d --name nextjs-app -p 80:3000 --env-file /home/ubuntu/.env.production $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+```
 
-2. **图片优化**
-   - 使用 Next.js Image 组件
-   - 配置图片域名白名单
+## Monitoring & Troubleshooting
 
-3. **缓存策略**
-   - 静态资源缓存
-   - API 响应缓存
+### Check Container Status
+```bash
+docker ps
+docker logs nextjs-app
+```
 
-## 监控和日志
+### View Application Logs
+```bash
+docker logs -f nextjs-app
+```
 
-1. **错误监控**
-   - 集成 Sentry
-   - 配置错误报告
+### Restart Application
+```bash
+docker restart nextjs-app
+```
 
-2. **性能监控**
-   - 使用 Vercel Analytics
-   - 或集成其他监控工具
+### Update Application Manually
+```bash
+# Pull latest image
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
 
-3. **日志记录**
-   - 配置日志级别
-   - 集中化日志管理
+# Stop and remove old container
+docker stop nextjs-app
+docker rm nextjs-app
 
-## 安全考虑
+# Run new container
+docker run -d --name nextjs-app -p 80:3000 --env-file /home/ubuntu/.env.production <account-id>.dkr.ecr.us-east-1.amazonaws.com/nextjs-order-management:latest
+```
 
-1. **HTTPS**
-   - 强制使用 HTTPS
-   - 配置 SSL 证书
+## SSL/HTTPS Setup (Optional)
 
-2. **CORS 配置**
-   - 配置正确的跨域策略
-   - 限制允许的域名
+For production, consider setting up SSL with nginx reverse proxy:
 
-3. **环境变量安全**
-   - 不要在前端暴露敏感信息
-   - 使用环境变量管理敏感配置
+### Install nginx
+```bash
+sudo apt install nginx -y
+```
 
-## 故障排除
+### Configure nginx
+```bash
+sudo nano /etc/nginx/sites-available/nextjs-app
+```
 
-1. **构建失败**
-   - 检查 TypeScript 错误
-   - 验证依赖兼容性
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
 
-2. **运行时错误**
-   - 检查环境变量配置
-   - 验证 API 连接
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
 
-3. **性能问题**
-   - 分析包大小
-   - 优化组件渲染
+### Enable site
+```bash
+sudo ln -s /etc/nginx/sites-available/nextjs-app /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+## Support
+
+If you encounter issues during deployment:
+1. Check GitHub Actions logs
+2. Verify AWS credentials and permissions
+3. Ensure EC2 security groups allow traffic
+4. Check Docker container logs on EC2
+5. Verify environment variables are set correctly
+
+## Rollback Process
+
+To rollback to a previous version:
+1. Find the previous image tag in ECR
+2. SSH to EC2 instance
+3. Stop current container
+4. Run previous image version
+```bash
+docker stop nextjs-app
+docker rm nextjs-app
+docker run -d --name nextjs-app -p 80:3000 --env-file /home/ubuntu/.env.production <account-id>.dkr.ecr.us-east-1.amazonaws.com/nextjs-order-management:<previous-tag>
+```
